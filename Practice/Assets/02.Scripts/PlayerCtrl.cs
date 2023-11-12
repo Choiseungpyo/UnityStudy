@@ -17,16 +17,20 @@ public class PlayerCtrl : MonoBehaviour
     //회전 속도 변수
     public float turnSpeed = 80.0f;
 
-   
-     
+
     // Start is called before the first frame update
-    void Start()
+    IEnumerator Start()
     {
         // Tansform 컴포넌트를 추출해 변수에 대입
         tr = GetComponent<Transform>(); // 함수명<형식(추출할 클래스)>(인자(매개변수));
         anim = GetComponent<Animation>();
 
+        // 애니메이션 실행
         anim.Play("Idle");
+
+        turnSpeed = 0.0f;
+        yield return new WaitForSeconds(0.3f);
+        turnSpeed = 80.0f;
 
         // tr = this.gameObject.GetComponent<Transform>() : 이 스크립트가 포함된 게임오브젝트가 가진 여러 컴포넌트 중에서 Transform 컴포넌트를 추출해 tr 변수에 저장하라.
         // tr = GetComponent ("Transform") as Transform;
@@ -34,7 +38,6 @@ public class PlayerCtrl : MonoBehaviour
 
         // this : 해당 클래스(스크립트) ex) PlayerCtrl 스크립트
         // this.gameObject : 이 스크립트가 추가된 게임 오브젝트
-        
     }
 
     // Update is called once per frame
