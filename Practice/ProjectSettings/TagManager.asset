@@ -6,6 +6,9 @@ TagManager:
   tags:
   - BULLET
   - PLAYER
+  - PUNCH
+  - MONSTER
+  - HP_BAR
   layers:
   - Default
   - TransparentFX
@@ -13,8 +16,8 @@ TagManager:
   - BARREL
   - Water
   - UI
-  - 
-  - 
+  - MONSTER_BODY
+  - MONSTER_PUNCH
   - 
   - 
   - 
