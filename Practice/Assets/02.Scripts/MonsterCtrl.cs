@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.AI;
 
 
-public class MosterCtrl : MonoBehaviour
+public class MonsterCtrl : MonoBehaviour
 {
     // 몬스터의 상태 정보
     public enum State
@@ -66,7 +66,7 @@ public class MosterCtrl : MonoBehaviour
         PlayerCtrl.OnPlayerDie -= this.OnPlayerDie;
     }
 
-    
+
     void Awake()
     {
         // 몬스터의 Transform 할당
@@ -88,7 +88,7 @@ public class MosterCtrl : MonoBehaviour
     // 일정한 간격으로 몬스터의 행동 상태를 체크
     IEnumerator CheckMonsterState()
     {
-        while(!isDie)
+        while (!isDie)
         {
             // 0.3초 동안 중지(대기)하는 동안 제어권을 메시지 루프에 양보
             yield return new WaitForSeconds(0.3f);
@@ -101,12 +101,12 @@ public class MosterCtrl : MonoBehaviour
             float distance = Vector3.Distance(PlayerTr.position, MonsterTr.position);
 
             //공격 사정거리 범위로 들어왔는지 확인
-            if(distance <= attackDist)
+            if (distance <= attackDist)
             {
                 state = State.ATTACK;
             }
             // 추적 사정거리 범위로 들어왔는지 확인
-            else if(distance <= traceDist)
+            else if (distance <= traceDist)
             {
                 state = State.TRACE;
             }
@@ -120,9 +120,9 @@ public class MosterCtrl : MonoBehaviour
     // 몬스터의 상태에 따라 몬스터의 동작을 수행
     IEnumerator MonsterAction()
     {
-        while(!isDie)
+        while (!isDie)
         {
-            switch(state)
+            switch (state)
             {
                 // IDLE 상태  
                 case State.IDLE:
@@ -172,8 +172,8 @@ public class MosterCtrl : MonoBehaviour
                     GetComponent<CapsuleCollider>().enabled = true;
                     // 몬스터를 비활성화
                     this.gameObject.SetActive(false);
-                    Debug.Log("Monster Die 몬스터 비활성화"+gameObject.name);
-                    state = State.IDLE;
+
+                    state = State.IDLE; //교재 내 오류 해결 코드
                     break;
             }
             yield return new WaitForSeconds(0.3f);
@@ -182,26 +182,10 @@ public class MosterCtrl : MonoBehaviour
 
     private void OnCollisionEnter(Collision coll)
     {
-        if(coll.collider.CompareTag("BULLET"))
+        if (coll.collider.CompareTag("BULLET"))
         {
             // 충돌한 총알을 삭제
             Destroy(coll.gameObject);
-            // 피격 리액션 애니메이션 실행
-            anim.SetTrigger(hashHit);
-
-            // 총알의 충돌 지점
-            Vector3 pos = coll.GetContact(0).point;
-            // 총알의 충돌 지점의 법선 벡터
-            Quaternion rot = Quaternion.LookRotation(pos - coll.GetContact(0).normal);
-            // 혈흔 효과를 생성하는 함수 호출
-            ShowBloodEffect(pos, rot);
-
-            // 몬스터의 hp 차감
-            hp -= 10;
-            if(hp <= 0)
-            {
-                state = State.DIE;
-            }
         }
     }
 
@@ -215,7 +199,7 @@ public class MosterCtrl : MonoBehaviour
     private void OnDrawGizmos()
     {
         // 추적 사정거리 표시
-        if(state == State.TRACE)
+        if (state == State.TRACE)
         {
             Gizmos.color = Color.blue;
             Gizmos.DrawWireSphere(transform.position, traceDist);
@@ -241,6 +225,25 @@ public class MosterCtrl : MonoBehaviour
         // 추적을 정지하고 애니메이션을 수행
         agent.isStopped = true;
         anim.SetFloat(hashSpeed, Random.Range(0.8f, 1.2f));
-        anim.SetTrigger(hashPlayerDie); 
-    }    
+        anim.SetTrigger(hashPlayerDie);
+    }
+
+    public void OnDamage(Vector3 pos, Vector3 normal)
+    {
+        // 피격 리액션 애니메이션 실행
+        anim.SetTrigger(hashHit);
+        Quaternion rot = Quaternion.LookRotation(normal);
+
+        // 혈흔 효과를 생성하는 함수 호출
+        ShowBloodEffect(pos, rot);
+
+        // 몬스터의 hp 차감
+        hp -= 30;
+        if (hp <= 0)
+        {
+            state = State.DIE;
+            // 몬스터가 사망했을 때 50점을 추가
+            GameManager.instance.DisplayScore(50);
+        }
+    }
 }

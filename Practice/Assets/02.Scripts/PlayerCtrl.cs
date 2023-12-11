@@ -16,7 +16,7 @@ public class PlayerCtrl : MonoBehaviour
     //이동 속도 변수 (public으로 선언되어 인스펙터 뷰에 노출됨)
     public float moveSpeed = 10.0f;
     //회전 속도 변수
-    public float turnSpeed = 80.0f;
+    public float turnSpeed = 200.0f;
 
     // 초기 생명 값
     private readonly float initHp = 100.0f;
