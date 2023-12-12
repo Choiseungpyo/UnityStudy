@@ -28,8 +28,8 @@ public class MonsterCtrl : MonoBehaviour
     public bool isDie = false;
 
     // 컴포넌트의 캐시를 처리할 변수
-    private Transform MonsterTr;
-    private Transform PlayerTr;
+    private Transform monsterTr;
+    private Transform playerTr;
     private NavMeshAgent agent;
     private Animator anim;
 
@@ -70,19 +70,37 @@ public class MonsterCtrl : MonoBehaviour
     void Awake()
     {
         // 몬스터의 Transform 할당
-        MonsterTr = GetComponent<Transform>();
+        monsterTr = GetComponent<Transform>();
 
         // 추적 대상인 Player의 Transform 할당
-        PlayerTr = GameObject.FindWithTag("PLAYER").GetComponent<Transform>();
+        playerTr = GameObject.FindWithTag("PLAYER").GetComponent<Transform>();
 
         // NavMeshAgent 컴포넌트 할당
         agent = GetComponent<NavMeshAgent>();
+        // NavMeshAgent의 자동 회전 기능 비활성화
+        agent.updateRotation = false;
 
         // Animator 컴포넌트 할당
         anim = GetComponent<Animator>();
 
         // BloodSprayEffect 프리팹 로드
         bloodEffect = Resources.Load<GameObject>("BloodSprayEffect");
+    }
+
+    private void Update()
+    {
+        // 목적지까지 남은 거리로 회전 여부 판단
+        if( agent.remainingDistance >= 2.0f)
+        {
+            // 에이전트의 이동 방향
+            Vector3 direction = agent.desiredVelocity;
+            // 회전 각도(쿼터니언) 산출
+            Quaternion rot = Quaternion.LookRotation(direction);
+            // 구면 선형보간 함수로 부드러운 회전 처리
+            monsterTr.rotation = Quaternion.Slerp(monsterTr.rotation,
+                                                    rot,
+                                                    Time.deltaTime * 10.0f);
+        }
     }
 
     // 일정한 간격으로 몬스터의 행동 상태를 체크
@@ -98,7 +116,7 @@ public class MonsterCtrl : MonoBehaviour
 
 
             // 몬스터와 주인공 캐릭터 사이의 거리 측정
-            float distance = Vector3.Distance(PlayerTr.position, MonsterTr.position);
+            float distance = Vector3.Distance(playerTr.position, monsterTr.position);
 
             //공격 사정거리 범위로 들어왔는지 확인
             if (distance <= attackDist)
@@ -135,7 +153,7 @@ public class MonsterCtrl : MonoBehaviour
                 // 추적 상태  
                 case State.TRACE:
                     // 추적 대상의 좌표로 이동 시작
-                    agent.SetDestination(PlayerTr.position);
+                    agent.SetDestination(playerTr.position);
                     agent.isStopped = false;
 
                     // Animator의 IsTrace 변수를 true 설정
@@ -192,7 +210,7 @@ public class MonsterCtrl : MonoBehaviour
     void ShowBloodEffect(Vector3 pos, Quaternion rot)
     {
         // 혈흔 효과 생성
-        GameObject blood = Instantiate<GameObject>(bloodEffect, pos, rot, MonsterTr);
+        GameObject blood = Instantiate<GameObject>(bloodEffect, pos, rot, monsterTr);
         Destroy(blood, 1.0f);
     }
 
