@@ -92,14 +92,18 @@ public class MonsterCtrl : MonoBehaviour
         // 목적지까지 남은 거리로 회전 여부 판단
         if( agent.remainingDistance >= 2.0f)
         {
+
             // 에이전트의 이동 방향
             Vector3 direction = agent.desiredVelocity;
-            // 회전 각도(쿼터니언) 산출
-            Quaternion rot = Quaternion.LookRotation(direction);
-            // 구면 선형보간 함수로 부드러운 회전 처리
-            monsterTr.rotation = Quaternion.Slerp(monsterTr.rotation,
-                                                    rot,
-                                                    Time.deltaTime * 10.0f);
+            if (direction != Vector3.zero) //look rotation viewing vector is zero오류가 계속 떠서 내가 추가한 코드
+            {
+                // 회전 각도(쿼터니언) 산출
+                Quaternion rot = Quaternion.LookRotation(direction);
+                // 구면 선형보간 함수로 부드러운 회전 처리
+                monsterTr.rotation = Quaternion.Slerp(monsterTr.rotation,
+                                                        rot,
+                                                        Time.deltaTime * 10.0f);
+            }      
         }
     }
 
